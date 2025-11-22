@@ -83,8 +83,7 @@ class MyPortfolio:
         """
         TODO: Complete Task 4 Above
         """
-        
-        # 前向填補並用 0 填滿剩下
+    
         self.portfolio_weights.ffill(inplace=True)
         self.portfolio_weights.fillna(0, inplace=True)
 

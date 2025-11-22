@@ -45,12 +45,10 @@ Strategy Creation
 Create your own strategy, you can add parameter but please remain "price" and "exclude" unchanged
 """
 
-
 class MyPortfolio:
     """
     NOTE: You can modify the initialization function
     """
-
     def __init__(self, price, exclude, lookback=50, gamma=0):
         self.price = price
         self.returns = price.pct_change().fillna(0)
@@ -66,16 +64,27 @@ class MyPortfolio:
         self.portfolio_weights = pd.DataFrame(
             index=self.price.index, columns=self.price.columns
         )
-
         """
         TODO: Complete Task 4 Below
         """
-        
-        
+        weights = pd.DataFrame(0.0, index=self.price.index, columns=self.price.columns)
+        for date in self.price.index[self.lookback:]:
+            past = self.returns.loc[:date].iloc[-self.lookback:]
+            mom = past[assets].sum()
+            best_asset = mom.idxmax()
+            if mom[best_asset] > 0:
+                w = pd.Series(0.0, index=self.price.columns)
+                w[best_asset] = 1.0
+                weights.loc[date] = w
+            else:
+                weights.loc[date] = 0.0
+            
+        self.portfolio_weights = weights
         """
         TODO: Complete Task 4 Above
         """
-
+        
+        # 前向填補並用 0 填滿剩下
         self.portfolio_weights.ffill(inplace=True)
         self.portfolio_weights.fillna(0, inplace=True)
 
@@ -104,7 +113,7 @@ class MyPortfolio:
 if __name__ == "__main__":
     # Import grading system (protected file in GitHub Classroom)
     from grader_2 import AssignmentJudge
-    
+
     parser = argparse.ArgumentParser(
         description="Introduction to Fintech Assignment 3 Part 12"
     )
@@ -138,6 +147,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     judge = AssignmentJudge()
-    
+
     # All grading logic is protected in grader_2.py
     judge.run_grading(args)

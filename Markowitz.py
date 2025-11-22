@@ -58,11 +58,13 @@ class EqualWeightPortfolio:
         # Get the assets by excluding the specified column
         assets = df.columns[df.columns != self.exclude]
         self.portfolio_weights = pd.DataFrame(index=df.index, columns=df.columns)
-
         """
         TODO: Complete Task 1 Below
         """
-
+        n = len(assets)
+        for day in df.index:
+            for asset in assets:
+                self.portfolio_weights.loc[day,asset] = 1/n
         """
         TODO: Complete Task 1 Above
         """
@@ -108,14 +110,19 @@ class RiskParityPortfolio:
         assets = df.columns[df.columns != self.exclude]
 
         # Calculate the portfolio weights
+        
         self.portfolio_weights = pd.DataFrame(index=df.index, columns=df.columns)
 
         """
         TODO: Complete Task 2 Below
         """
-
-
-
+        for i in range(self.lookback + 1, len(df)):
+            R = df_returns[assets].iloc[i - self.lookback : i]
+            sigma_today = R.std()
+            vol = 1 / sigma_today
+            total_vol = vol.sum()
+            for asset in assets:
+                self.portfolio_weights.loc[df.index[i], asset] = vol[asset] / total_vol
         """
         TODO: Complete Task 2 Above
         """
@@ -187,12 +194,14 @@ class MeanVariancePortfolio:
                 """
                 TODO: Complete Task 3 Below
                 """
-
+                w = model.addMVar(n, name="w", lb=0, ub=1)
+                model.addConstr(w.sum() == 1, name="weight_sum")
+                obj = w @ mu - (gamma / 2) * w @ Sigma @ w
+                model.setObjective(obj, gp.GRB.MAXIMIZE)
                 # Sample Code: Initialize Decision w and the Objective
                 # NOTE: You can modify the following code
-                w = model.addMVar(n, name="w", ub=1)
-                model.setObjective(w.sum(), gp.GRB.MAXIMIZE)
-
+                # w = model.addMVar(n, name="w", ub=1)
+                # model.setObjective(w.sum(), gp.GRB.MAXIMIZE)
                 """
                 TODO: Complete Task 3 Above
                 """
